@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/TalkAPPtest/static/css/main.8ec8220d.css",
+    "main.js": "/TalkAPPtest/static/js/main.0b66787f.js",
+    "index.html": "/TalkAPPtest/index.html",
+    "main.8ec8220d.css.map": "/TalkAPPtest/static/css/main.8ec8220d.css.map",
+    "main.0b66787f.js.map": "/TalkAPPtest/static/js/main.0b66787f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ec8220d.css",
+    "static/js/main.0b66787f.js"
+  ]
+}

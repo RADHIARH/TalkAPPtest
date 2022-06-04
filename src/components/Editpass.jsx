@@ -1,49 +1,91 @@
 import React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { editpassword } from '../redux/actions';
+
+import {useEffect} from 'react'
 
 
 const Editpass = (props) => {
-     const state = useSelector((state) => state.reducer);
-    //  states
+   const userid=localStorage.getItem('iduser');
+    //  Hooks
      const [show, setshow] = useState(true);
-    //  useDispatch
-     const dispatch=useDispatch();
+     const [users, setusers] = useState([]);
+     const [password, setpassword] = useState();
+     const [lastpassword, setlastpassword] = useState();
+    
     //  functions
-     const Editpassword=(id,ps)=>{
-         const t=state.users.filter(el=>el.id===id);
-         const pass=t[0].password;
-         if(pass===document.getElementById("lastpass").value){
-         dispatch(editpassword(id,ps),
-            document.getElementById("alertmessage").style.visibility="visible")}
-         else
-         document.getElementById("errorpassword").innerText="Last password is incorrect"   
-     }
        const reset=()=>{
         setshow(false);
     }
+     const getusers=async()=>{
+       const response=await fetch ("/users",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }})
+
+    const data=await response.json();
+    setusers(data);
+    }
+     const update=async(e)=>{
+          e.preventDefault();
+        const response= await fetch("/updatepassword",{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json',
+              "x-xsrf-token":localStorage.getItem("TK"),
+            },
+            body:JSON.stringify({
+            userid,password,lastpassword
+          
+        }),
+          })
+    const data=await response.json();
+       if(data){
+           document.getElementById("alertmessage").style.visibility="visible";
+           console.log("yesssss");
+       }
+       else {
+         document.getElementById("errorpassword").style.visibility="visible";
+         console.log("nooo");
+       }
+            
+
+    }
+    // useEffect
+    
+    useEffect(() => {
+     getusers();
+    }, []);
     return (
         <div>
             {show===true?
-            <div className=" shadow " style={{backgroundColor:"#BFBFBF"}}>
+            <div className="shadow" style={{backgroundColor:"#BFBFBF"}}>
                 <h4 className='text-center m-4' style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Edit Password</h4>
-                    {state.users.filter(e=>e.id===props.id).map(user=>{
+                    {users.filter(e=>e._id===userid).map(user=>{
                       return(  
                       <>
-                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"15px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Last Password </label><input type="password"  id="lastpass" className='form-control' style={{width:"60%",marginLeft:"44px"}}/>
+                      <form  onSubmit={(e)=>update(e)}>
+                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"15px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}} >Last Password </label><input type="password"  id="lastpass"  onChange={e=>setlastpassword(e.target.value)}className='form-control' style={{width:"60%",marginLeft:"44px"}}/>
+                        </div> 
+                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"15px"}} ><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>New Password </label><input type="password" id="ps" className='form-control'  onChange={(e)=>setpassword(e.target.value)}style={{width:"60%",marginLeft:"40px"}}/>
                         </div>
-                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"15px"}} ><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>New Password </label><input type="password" id="ps" className='form-control' style={{width:"60%",marginLeft:"40px"}}/>
-                        </div>
-                        <div className=" text-danger " style={{marginLeft:"150px"}}>  <label id="errorpassword" ></label>
+                        <div className="text-danger "  id='errorpassword' style={{marginLeft:"150px",visibility:"hidden"}}>  <label id="errorpassword" >Last password is incorrect</label>
                         </div> 
                         <div className="d-flex "  style={{marginLeft:"140px"}}>
-                            <button className="btn  m-2" style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} onClick={()=>Editpassword(user.id,document.getElementById("ps").value)}>Save Changes</button>
-                            <button className="btn  m-2"  style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} onClick={()=>reset()}>Cancel</button>
+                            <button type='submit'  className="btn  m-2" style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} >Save Changes</button>
+                             <button className="btn  m-2"  style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} onClick={()=>reset()}>Cancel</button>
                         </div>
                         <div class="alert alert-secondary text-success"  id="alertmessage" style={{visibility:"hidden"}}role="alert">
                         Successfully  Saved <i class="fa-solid fa-circle-check"></i>
+
                         </div>
+                        
+                        </form>
+                        
                       </>
                                             )
                                 })

@@ -1,5 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
+import {useEffect } from 'react';
+import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import {AiFillDelete}  from "react-icons/ai";
@@ -24,69 +26,504 @@ const Listusers = () => {
         // connect to store
        const state = useSelector((state) => state.reducer);
         // useparams
-       const {idd}=useParams();
-       const iduse=parseInt(idd);
+       const iduse=localStorage.getItem('iduser')
         // states
        const [grouptoshow, setgrouptoshow] = useState([]);
+       const [message, setmessage] = useState();
+       const [receiver, setreceiver] = useState();
        const [showg, setshowg] = useState(false);
-       const [filter, setfilter] = useState(state.users);
+       const [users, setusers] = useState([]);
+       const [filter, setfilter] = useState([ {
+        "_id": "62994c9b02edc8d4743075ae",
+        "username": "Radhia Rahmani",
+        "email": "radhiarahmani.info@gmail.com",
+        "password": "$2a$10$ku3DqrQBWlICCTgeTQ77L.CX.1D6iiGWRllGXpIBoR562Iv8j8TsO",
+        "actif": false,
+        "img": "https://static.vecteezy.com/ti/vecteur-libre/t2/1993889-belle-femme-latine-avatar-icone-personnage-gratuit-vectoriel.jpg",
+        "phone": 54227098,
+        "invitations": [
+            {
+                "idfriend": "629b6ca1aed340c25c51a1eb",
+                "accepted": true
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "62994ebf8a13b93a50ca7247"
+            },
+            {
+                "idfriend": "62994d848a13b93a50ca6f9f"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "62994d848a13b93a50ca6f9f",
+        "username": "Eya Slimeni",
+        "email": "eya.sl@gmail.com",
+        "password": "$2a$10$obPyw7goFK2VLjNRLiqarO3u41wp8DT6mEuPmV3B9cqLtgaB/HfBm",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 23147789,
+        "invitations": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae"
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae"
+            },
+            {
+                "idfriend": "6299fd6798d6a5148ca7c6d4"
+            },
+            {
+                "idfriend": "6299fd6798d6a5148ca7c6d4"
+            },
+            {
+                "idfriend": "6299fd6798d6a5148ca7c6d4"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "62994ebf8a13b93a50ca7247",
+        "username": "Mourad ben ayed",
+        "email": "mourad.ay@gmail.com",
+        "password": "$2a$10$XHzfzxPb3Ps7B21vhoRecOBp5qgnxgQ0oey5WKsaIHadMp4MS.FUC",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 54788200,
+        "invitations": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae"
+            },
+            {
+                "idfriend": "62994d848a13b93a50ca6f9f",
+                "accepted": false
+            }
+        ],
+        "friendsList": [],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "6299fd6798d6a5148ca7c6d4",
+        "username": "Sarra Ayari",
+        "email": "sarra.ayari@gmail.com",
+        "password": "$2a$10$OD9KHmvwc3gE/pbYC5veguNgU3kIazJD4dyNmLn/C9PhdeGQmaa6u",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 23147896,
+        "invitations": [
+            {
+                "idfriend": "62994d848a13b93a50ca6f9f"
+            },
+            {
+                "idfriend": "62994d848a13b93a50ca6f9f",
+                "accepted": false
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b5b63f44e5bdbdb9cbfcb",
+        "username": "Manar ayadi",
+        "email": "manar.ay@gmail.com",
+        "password": "$2a$10$jD/ZUxzW6.947rp0zJiLw.m4UjU.3HLuo1OkvSAyP5Il8gP021p0W",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 52147500,
+        "invitations": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae",
+                "accepted": false
+            }
+        ],
+        "friendsList": [],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b5b98f44e5bdbdb9cc07f",
+        "username": "Sonia Mosbahi",
+        "email": "sonia.mosbahi@gmail.com",
+        "password": "$2a$10$ckLbz7U9LlPZz46sclftgeONgpXhatqTtbNMlnXRFLuWDIdya0wRi",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 56214789,
+        "invitations": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae",
+                "accepted": false
+            }
+        ],
+        "friendsList": [],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b5ea5f44e5bdbdb9ccaf7",
+        "username": "Haifa Omrani",
+        "email": "haifafoufa@gmail.com",
+        "password": "$2a$10$ERIlLhWh7iMX.XiKFGQeTO7zJomr7lqjiuVZEvhI0/szSpzG4CD8C",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 23145200,
+        "invitations": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae",
+                "accepted": true
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "62994c9b02edc8d4743075ae"
+            },
+            {
+                "idfriend": "629b60fa25e67d731029687f"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b60fa25e67d731029687f",
+        "username": "Ali ben Amor",
+        "email": "ali.bnamor@gmail.com",
+        "password": "$2a$10$pWGrs9f0fcxRy3v51U4xs.y1.wqSReM9iFkmaeI/ub1bOAZwtMK/i",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 55120321,
+        "invitations": [
+            {
+                "idfriend": "629b5ea5f44e5bdbdb9ccaf7",
+                "accepted": true
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "629b680825e67d7310296be3"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b680825e67d7310296be3",
+        "username": "Mohamed ben Slimene ",
+        "email": "mohamd.slmn@gmail.com",
+        "password": "$2a$10$7rW.9CNxbwLkWQJUyVZRxeJmtLv4C14pizHtFT1JfjTJ35HcEFBTq",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 23120200,
+        "invitations": [
+            {
+                "idfriend": "629b60fa25e67d731029687f",
+                "accepted": true
+            },
+            {
+                "idfriend": "62994c9b02edc8d4743075ae",
+                "accepted": false
+            }
+        ],
+        "friendsList": [
+            {
+                "idfriend": "629b691bcc84710cfd9f0a40"
+            }
+        ],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b691bcc84710cfd9f0a40",
+        "username": "Houssem ben Yahia",
+        "email": "houssem.by@gmail.com",
+        "password": "$2a$10$bYLdnxK4s9LqQAK9SxC3tOm8LfFGMXIq4clNH/8idESlwXex6QfVG",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 55210300,
+        "invitations": [
+            {
+                "idfriend": "629b680825e67d7310296be3",
+                "accepted": true
+            }
+        ],
+        "friendsList": [],
+        "messages": [],
+        "__v": 0
+    },
+    {
+        "_id": "629b6ca1aed340c25c51a1eb",
+        "username": "Houyem ben saleh",
+        "email": "houyem.sl@gmail.com",
+        "password": "$2a$10$j1C4jm93XE6fCk6S7G9KTOwQ4vbDT6V8zIELOBROfGCLBwuwNTZc2",
+        "actif": false,
+        "img": "http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
+        "phone": 54227098,
+        "invitations": [
+            {
+                "idfriend": "629b691bcc84710cfd9f0a40",
+                "accepted": true
+            },
+            {
+                "idfriend": null,
+                "accepted": false
+            }
+        ],
+        "friendsList": [],
+        "messages": [],
+        "__v": 0
+    }]);
        const [user, setuser] = useState([]);
+       const [iduser, setid] = useState();
        const [ms, setms] = useState();
-       const [show, setshow] = useState(false);
+       const [show, setshow] = useState(true);
        const [group, setgroup] = useState(false);
+       const [groupname, setgroupname] = useState();
+       const [groups, setgroups] = useState([]);
+       const [messagesgroups, setmessagesgroups] = useState([]);
+       
+       const [usermessages, setusermessages] = useState([]);
+       //get users list 
+         const getusers=async()=>{
+        await fetch ("/users",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }
+    }
+    ).then((res)=>{
+         const listdata= res.json();
+          setusers(listdata);
+          setfilter(listdata)
+    }).catch ((err)=>{
+        console.log(err)
+    })
+    
+
+   
+  //  setusers(listdata);
+   
+   
+         }
+// get usersmessages 
+     const getmessages=async()=>{
+    const res=await fetch ("/messages",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }})
+
+    const listdata=await res.json();
+    setusermessages(listdata);
+   
+   
+         }
+         // get group messages
+         const getgroupsmessage=async()=>{
+            const response=await fetch('/groupsmsg',{
+                 method:'GET',
+             headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }
+            })
+            const data= await response.json();
+        setmessagesgroups(data)
+
+            
+         }
+         // get groups 
+         const getgroups=async ()=>{
+             const response =await fetch('/groups ',{
+                  method:'GET',
+                  headers:{
+                        'Content-Type':'application/json',
+                        "x-xsrf-token":localStorage.getItem("TK"),
+
+       }}
+             );
+             if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+             const data=await response.json();
+            
+             setgroups(data)
+             
+         }
+         // send message in a group
+         const addmessagetoGroup=async(e,idgroup)=>{
+           e.preventDefault();
+          await fetch("/addmsgroup",{
+          method:'POST',
+          headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       },
+       body:JSON.stringify({
+          iduse,idgroup,message
+        }),
+        
+}
+)
+   document.getElementById('message').value="";
+   
+}
+    // get connected user
+      const getuserconnected=async()=>{
+       const res=await fetch ("/user",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }});
+    const user=await res.json();
+    setid(user._id);
+    console.log("userrrr"+iduser)
+   
+    
+  
+  }
+  // send message 
+  const sendmessage=async(e,id_receiver)=>{
+      e.preventDefault();
+      const res=await fetch('/addmessage',{
+       method:'POST',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+       },
+        body:JSON.stringify({
+          iduser,id_receiver,message,
+        }),
+
+          
+      });
+         setusermessages(await res.json());
+        //   window.location.reload(true);
+  }
+     // // deletemessage
+        const deletems=async(e,idmessage)=>{
+          e.preventDefault();
+        const res=await fetch (`/deletemessage/${idmessage}`,
+         {
+       method:'DELETE',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }});
+            const messages=await res.json();
+            setusermessages(await res.json());
+    }
+   
+
+
     // Dispatch
        const dispatch=useDispatch();
     // search user
         const searchUser=(user)=>{
-            const tab=state.users.filter(el=>el.username.toUpperCase().includes(user.toUpperCase()));
+            const tab=users.filter(el=>el.username.toUpperCase().includes(user.toUpperCase()));
             setfilter(tab);
                                   }
        // /showuser
-        const showUser=(idd)=>{
-              const t=state.users.filter(element=>element.id===idd);
+        const showUser=(idus)=>{
+              const t=users.filter(element=>element._id===idus);
               setuser(t);
               setshow(true);
-              const idmessage=state.messages.map((e,i)=>e.from===idd && e.to===iduse? i :"").filter(String); 
-              dispatch(Viewmessage(idmessage))
+            const idmessage=usermessages.map((e,i)=>e.id_sender===iduse && e.id_receiver===idus? i :"").filter(String); 
+            console.log(idmessage);
+            for (let i = 0; i < idmessage.length; i++) {
+            const id = idmessage[i];
+            usermessages[id].vue = true;
+      }
+            //   dispatch(Viewmessage(idmessage))
     }
         // Sendmessage
-        const sendMessage=(m,idsend,idreceive)=>{
-          dispatch(addmessage(m,idsend,idreceive));    
-    }
+      
     // send invitation
-        const sendinvitation=(sender,receiver)=>{
-        dispatch(sendInvit(sender,receiver))
-            
-    }
+        const sendinvitation=async(idfriend)=>{
+        const response=await fetch('/sentinvit',{
+            method:'POST',
+            headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+       },
+        body:JSON.stringify({
+        iduser,idfriend
+        }),   
+         })
+           const data=await response.json();
+           setusers(data);
+   alert("invitation envoyéé")
+        }
     // addtolistfriends
         const addgroupname=()=>{
        setgroup(!group)
     }
     // add new group
-        const addgrp=(name)=>{
-            dispatch(addgroup(name))
-            document.getElementById("groupname").style.value=""
+        const addgrp= async ()=>{
+            const data=await fetch ('/addgroup',{
+         method:'POST',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       },
+       body:JSON.stringify({
+          groupname
+        }),
+    });
+                const groups=await data.json();
+                setgroups(groups);
 }
         const hover=(id)=>{
            document.getElementById(id).style.visibility="visible";
     }
     // show group
-        const showgroup=(idg)=>{
-            const gr=state.groups.filter(e=>e.id===idg)
-            console.log(gr[0].name.toLowerCase().slice(0,1))
-            setgrouptoshow(gr)
-            setshowg(true)
-            setshow(false)
-    }
-    // // deletemessage
-        const deletems=(id)=>{
-            dispatch(deletemsg(id))
+        const showgroup= (idg)=>{
+            const gr=groups.filter(e=>e._id===idg);
+            setgrouptoshow(gr);
+            console.log('ggggg'+gr)
+            setshowg(true);
+            setshow(false);
+            console.log("show group"+show)
     }
     // join group
-        const joingroup=(iduser,idg)=>{
-            dispatch(addmember(iduser,idg))
-            //   setshowg(true)
-            alert("Done...")
+        const joingroup=async (idgroup)=>{
+          const data=  await fetch('/joingroup',{
+                method:'POST',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       },
+       body:JSON.stringify({
+          iduser,idgroup
+        }),
+            })
+         const groups=await data.json();
+         setgroups(groups)
     }
     // leave group
         const Leavegrp=(idgroup,idmember)=>{
@@ -94,15 +531,32 @@ const Listusers = () => {
             //  setshowg(false)
             alert("Done...")
     }
-    // sendmessagetogroup
-        const sendMessageToGroup=(idgroup,idmember,message)=>{
-            dispatch(sendMessageGroup(idgroup,idmember,message))
-        }
+    
 
+     // useEffect
+  useEffect(() => {
+      getusers();
+      getmessages();
+      getuserconnected();
+      getgroups();
+      getgroupsmessage();
+   }, []);
+
+    useEffect(() => {
+      getmessages();      
+   }, [usermessages]);
+
+    useEffect(() => {
+      getgroupsmessage();      
+   }, [messagesgroups]);
+
+   useEffect(() => {
+      getgroups();
+   }, [groups]);
     return (
         <div>
             <div className="row d-flex justify-content-center" >
-                <Header id={iduse} />
+                <Header />
             </div>
             <div className="d-flex col-md-12 " >
                  {/* list users  part 1 */}
@@ -117,19 +571,25 @@ const Listusers = () => {
                       onChange={event=>searchUser(event.target.value)}
                      />
                     <div className="col mt-4 mb-4 ">
-                        {filter.filter(user=>user.id!==iduse).map(ele=>{
+                        {filter.filter(user=>user._id!==iduse).map(ele=>{
                             return(
-                            <div className='row m-1' key={ele.id} style={{width:"200px"}}>
-                                <button className="btn btn-outline-dark mt-2 "   onClick={()=>showUser(ele.id)} style={{border:"none" ,height:"45px"}}>
+                            <div className='row m-1' key={ele._id} style={{width:"200px"}}>
+                                <button className="btn btn-outline-dark mt-2 "   onClick={()=>showUser(ele._id)} style={{border:"none" ,height:"45px"}}>
                                     <img src={ele.img}  alt ="" className='avatar'/><BsCircleFill className='m-1 '  style={{color:ele.actif===true?"green":"red"}} onMouseOver={()=>document.getElementById(ele.username).style.visibility="visible"} onMouseLeave={()=>document.getElementById(ele.username).style.visibility="hidden"}/>{ele.username.substr(0,11)} 
-                                {state.messages.reduce(
+                                {/* {usermessages.filter(element=>element.id_sender==="6299fd6798d6a5148ca7c6d4").reduce(
                                     (acc, current) => (current.from===ele.id && current.to===iduse && current.vue===false  ? acc+1: acc),0)>0 ? 
                                         <p style={{fontSize:"13px",color:"green",fontWeight:"bold"}}>
-                                            {state.messages.reduce(
+                                            {ele.messages.reduce(
                                                 (acc, current) => (current.from===ele.id && current.to===iduse && current.vue===false  ? acc+1: acc),0)} new messages
                                         </p>  
                                         : null
-                                }       
+                                }        */}
+                                <p style={{fontSize:"13px",color:"green",fontWeight:"bold"}}>
+                                     {
+                                    usermessages.filter(message=>message.id_sender===ele._id).reduce((acc,current)=> current?acc=current+1:acc,0)
+                                } newmessages
+                                </p>
+                               
                                <div className="bg-black text-white"  id={ele.username}style={{visibility:"hidden",width:"150px"}}><h6>{ele.actif===true?" is online":" is offline"}</h6>
                                </div>
                                </button>
@@ -145,17 +605,14 @@ const Listusers = () => {
                     <div className='userDiscuss'>
                     {user.map(element=>(
                         <>
-                            <div className="card col-md-4 mt-4  offset-md-4 bg-light" key={element.id} style={{}} >
+                            <div className="card col-md-4 mt-4  offset-md-4 bg-light" key={element._id} style={{}} >
                                 <div className="card-header justify-content-center d-flex" > <img  alt ="" src={element.img} className='avatar'/><h5 style={{marginLeft:"10px"}}>{element.username}</h5>
                                 </div>
                                 <div className="card-body text-center">{element.email}
-                                    {state.FriendsList.find(e=>e.friend1===iduse && e.friend2===element.id || e.friend1===element.id && e.friend2===iduse)? <h6> Friend <TiTick/></h6>: 
-                                        state.users.filter(e=>e.id===element.id).find(el=>{
-                                        return (
-                                        el.invitations.find(user=>user.idf===iduse && user.accepted===false))
-                                    })?
+                                    {element.friendsList.find(e=>e.idfriend===iduser)? <h6> Friend <TiTick/></h6>: 
+                                        element.invitations.find(e=>e.idfriend===iduse && e.accepted===false)?
                                     <label className='form-label'>Invitation sent</label>:
-                                    <input type="button" className="btn btn-outline-dark  fw-bold"   onClick={()=>sendinvitation(iduse,element.id)}  value=" Add to Friends List"style={{width:"150px",fontSize:"13px" ,marginTop:"10px"}}/>                   
+                                    <input type="button" className="btn btn-outline-dark  fw-bold"   onClick={()=>sendinvitation(element._id)}  value=" Add to Friends List"style={{width:"150px",fontSize:"13px" ,marginTop:"10px"}}/>                   
                      }
                                 </div>  
                             </div>
@@ -163,32 +620,32 @@ const Listusers = () => {
                      {/* show messages */}
                             <div className='col' style={{marginTop:"20px",marginBottom:"55px",marginLeft:"40px"}}>
                            {
-                               state.messages.map(el=>{
+                               usermessages.map(el=>{
                                    return(
-                                       el.to===element.id && el.from===iduse?
+                                       el.id_receiver===element._id && el.id_sender===iduser?
                                        <div className='d-flex'>
-                                            <div className='row m-3 shadow '  onMouseOver={()=>document.getElementById(el.msg).style.visibility="visible"  } onMouseLeave={()=>document.getElementById(el.msg).style.visibility="hidden" } style={{ borderRadius:"10px",backgroundColor:"#CCCCCC",width:"350px",height:"50px"}}>
+                                            <div className='row m-3 shadow '  onMouseOver={()=>document.getElementById(el._id).style.visibility="visible"  } onMouseLeave={()=>document.getElementById(el.msg).style.visibility="hidden" } style={{ borderRadius:"10px",backgroundColor:"#CCCCCC",width:"350px",height:"50px"}}>
                                                 <div className="col"> 
-                                                    <h5 className='mt-2'>{el.msg} </h5>
+                                                    <h5 className='mt-2'>{el.message} </h5>
                                                 </div>
-                                                <div className=" col-md-3 d-flex" id={el.msg} style={{ visibility:"hidden",marginTop:"10px"}}>
-                                                  <AiFillDelete  className="m-2" onClick={()=>deletems(el.id)}  style={{width:"100px"}}/>
+                                                <div className=" col-md-3 d-flex" id={el._id} style={{ visibility:"hidden",marginTop:"10px"}}>
+                                                  <AiFillDelete  className="m-2" onClick={(e)=>deletems(e,el._id)}  style={{width:"100px"}}/>
                                                 </div>
                                             </div>
                                             <div className="row mt-3"><p className='p-2'>  
-                                            {el.vue===false? <TiTickOutline style={{fontSize:"20px"}} />:<TiTick style={{fontSize:"20px"}}/> }</p></div>   
+                                            {el.vue? <TiTickOutline style={{fontSize:"20px"}} />:<TiTick style={{fontSize:"20px"}}/> }</p></div>   
                                             </div>
-                                            : el.from===element.id && el.to===iduse?
+                                            : el.id_sender===element._id && el.id_receiver===iduse?
                                             <div className='row' style={{ marginLeft:"300px", marginTop:"20px",width:"450px",height:"50px",borderRadius:"10px"}} >
                                                 <div className="col-md-3"> 
-                                                    {state.users.filter(e=>e.id===el.from).map(el=>{
+                                                    {users.filter(e=>e._id===el.id_sender).map(el=>{
                                                return(
                                                    <h6 className='mt-3'>{el.username.split(" ")[1]}</h6>
                                                             )
                                                     })
                                                     }
                                                 </div>
-                                                <div className="col  shadow bg-light" style={{ borderRadius:"10px"}}> <h5 className='mt-2'>{el.msg}</h5></div> 
+                                                <div className="col  shadow bg-light" style={{ borderRadius:"10px"}}> <h5 className='mt-2'>{el.message}</h5></div> 
                                                 </div>
                                                 :null
                                                         )
@@ -196,23 +653,26 @@ const Listusers = () => {
                                                 }
                                             </div>
                                          {/* send message to friend */}
-                                         {state.FriendsList.find(e=>e.friend1===iduse && e.friend2===element.id || e.friend1===element.id && e.friend2===iduse)?
-                                            <div className=' row d-flex' style={{width:"720px",position:"absolute",bottom:"0px",marginLeft:"80px" }}>
-                                                <InputEmoji
+                                    <form  onSubmit={(e)=>sendmessage(e,element._id)}>
+                                            <div className='  d-flex' style={{width:"720px",position:"absolute",bottom:"5px",left:"20px",marginLeft:"80px" }}>
+                                                {/* <InputEmoji
+                                                    name="message"
                                                     onChange={setms}
                                                     cleanOnEnter
-                                                    onEnter={()=>sendMessage(ms,iduse,element.id)}
                                                     placeholder="Type a message"
-                                                    id="message"/>
+                                                    /> */}
+                                                 <input   id="form" type="text" class="form-control" value={message}  onChange={e=>setmessage(e.target.value)} name="msg"/>
+                                                 <button   class="btn btn-primary" value="SEND" style={{marginLeft:"10px"}}>Send</button>
                                             </div>
-                                        :null}
+                                    </form>
+                                   
                         </>))
                              }
                         </div>
                     :showg===true  && show===false?
                     // group card description part 3
                     <div className='groupDiscuss'>
-                        {grouptoshow[0].members.find(e=>e===iduse)?
+                        {grouptoshow[0].members.find(e=>e.iduser===iduse)?
                           grouptoshow.map(el=>{
                                     return (
                                         <div className='col-md-8'>
@@ -228,12 +688,12 @@ const Listusers = () => {
                                                         {el.members.map(member=>{
                                                             return(
                                                             <>
-                                                            {state.users.filter(element=>
-                                                                element.id===member).map(user=>{
+                                                            {users.filter(element=>
+                                                                element._id===member.iduser).map(user=>{
                                                                     return(
                                                                         <div className='col-md-3' >
-                                                                            <div><img  alt ="" src={user.img} className="avatar"  onMouseOver={()=>document.getElementById(user.id).style.visibility="visible"} onMouseLeave={()=>document.getElementById(user.id).style.visibility="hidden"} /></div> 
-                                                                            <div id={user.id} style={{visibility:"hidden"}}>< p style={{fontSize:"10px",fontWeight:"500"}}>{user.username}</p></div>
+                                                                            <div><img  alt ="" src={user.img} className="avatar"  onMouseOver={()=>document.getElementById(user._id).style.visibility="visible"} onMouseLeave={()=>document.getElementById(user._id).style.visibility="hidden"} /></div> 
+                                                                            <div id={user._id} style={{visibility:"hidden"}}>< p style={{fontSize:"10px",fontWeight:"500"}}>{user.username}</p></div>
                                                                         </div>)
                                                                 })
                                                             }
@@ -249,20 +709,19 @@ const Listusers = () => {
                            {/*  group discussion */}
                                             <div className=' col m-5 '>
                                                { 
-                                                    grouptoshow.map(el=>{
+                                                    messagesgroups.filter(group=>group.id_group===el._id ).map(el=>{
                                                         return(       
                                                         <div className='d-flex'>
                                                             <div className="col mb-4"> 
-                                                            {el.messages.map(msg=>{
-                                                            return(
+                                                            
                                                                 <>
-                                                                {state.users.filter(user=>user.id===msg.member).map(element=>{
+                                                                {users.filter(user=>user._id===el.id_sender).map(element=>{
                                                                     return(     
                                                                 <div className="row mb-4"> 
                                                                     <div className="col-md-2">
                                                                     </div>
                                                                       { 
-                                                                    element.id===iduse?
+                                                                    element._id===iduse?
                                                                         <div className="col-md-4">  <h6>Vous</h6>
                                                                         </div>
                         :
@@ -272,7 +731,7 @@ const Listusers = () => {
                                                                 <div className="row" > 
                                                                      <div className='col-md-2' ><img  alt ="" src={element.img} className='avatar2'/>
                                                                      </div> 
-                                                                     <div className="col-md-8 p-2 shadow" style={{ borderRadius:"10px",backgroundColor:"#CCCCCC",height:"50px"}}> <h5>{msg.message}</h5></div>
+                                                                     <div className="col-md-8 p-2 shadow" style={{ borderRadius:"10px",backgroundColor:"#CCCCCC",height:"50px"}}> <h5>{el.message}</h5></div>
                                                                      </div>
                                                                 </div>
                                                                         )
@@ -280,8 +739,8 @@ const Listusers = () => {
                                                                     )
                                                                 }
                                                                 </>
-                                                                    )
-                                                                })} 
+                                                                    
+                                                                
                                                                 </div>
                                                         </div>      
                                                                 )
@@ -289,14 +748,18 @@ const Listusers = () => {
                                                         }
                                             </div>
                                             {/* send message to group */}
-                                            <div className='d-flex ' style={{width:"720px",position:"absolute",bottom:"0px",marginLeft:"45px" }}>
-                                                <InputEmoji
+                                               <form  onSubmit={(e)=>addmessagetoGroup(e,el._id)}>
+                                            <div className='  d-flex' style={{width:"720px",position:"absolute",bottom:"5px",left:"20px",marginLeft:"80px" }}>
+                                                {/* <InputEmoji
+                                                    name="message"
                                                     onChange={setms}
                                                     cleanOnEnter
-                                                    onEnter={()=>sendMessageToGroup(el.id,iduse,ms)}
                                                     placeholder="Type a message"
-                                                    id=""/>
+                                                    /> */}
+                                                 <input   id="messsage" type="text" class="form-control" value={message}  onChange={e=>setmessage(e.target.value)} name="msg"/>
+                                                 <button   class="btn btn-primary" value="SEND" style={{marginLeft:"10px"}}>Send</button>
                                             </div>
+                                    </form>
                                             </div>
                  )
                  
@@ -311,17 +774,17 @@ const Listusers = () => {
                 <hr style={{height:"3px",color:"black"}}></hr>
             <div>
             {
-                state.groups.map(e=>{
+                groups.map(e=>{
                     return(
                     <>
                         <div className="d-flex m-2" >
-                            <button onClick={()=>showgroup(e.id)} onMouseOver={()=>hover(e.name)} onMouseLeave={()=>  document.getElementById(e.name).style.visibility="hidden"} className="  btn btn-dark  text-center avatar  border-2"  style={{width:"50px" ,height:"50px",borderRadius:"50%"}}><i className={`fa-solid fa-${e.name.toLowerCase().slice(0,1)} ` } style={{fontSize:"25px"}}></i></button>
-                            <div className="col shadow  p-2 bg-black" id={e.name}  style={{ width:"60px",height:"40px",visibility:"hidden",borderRadius:"10px"}}>
+                             <button onClick={()=>showgroup(e._id)} onMouseOver={()=>hover(e.name)} onMouseLeave={()=>  document.getElementById(e.name).style.visibility="hidden"} className="  btn btn-dark  text-center avatar  border-2"  style={{width:"50px" ,height:"50px",borderRadius:"50%"}}><i className={`fa-solid fa-${e.name.toLowerCase().slice(0,1)} ` } style={{fontSize:"25px"}}></i></button>
+                             <div className="col shadow  p-2 bg-black" id={e.name}  style={{ width:"60px",height:"40px",visibility:"hidden",borderRadius:"10px"}}>
                              <h6 className='text-white'>{e.name.slice(0,7)}</h6>   
                             </div>
-                                {e.members.find(e=>e===iduse)?
+                                {e.members.find(e=>e.iduser===iduse)?
                                 <input type="button" className='btn btn-dark text-white mt-1'  value="Leave" onClick={()=>Leavegrp(e.id,iduse)}style={{width:"60px",height:"40px",fontSize:"15px",marginLeft:"15px",visibility:"visible",position:""}  }/>
-                                : <input type="button" className='btn btn-dark text-white mt-1'  value="Join" id={e.id} onClick={()=>joingroup(iduse,e.id)}style={{width:"60px",height:"40px",fontSize:"15px",marginLeft:"17px",visibility:"visible",position:""}  }/>
+                                : <input type="button" className='btn btn-dark text-white mt-1'  value="Join" id={e._id} onClick={()=>joingroup(e._id)}style={{width:"60px",height:"40px",fontSize:"15px",marginLeft:"17px",visibility:"visible",position:""}  }/>
                                 }
                         </div>
                     </>
@@ -335,8 +798,8 @@ const Listusers = () => {
                 </div>
                     {group===true?(
                         <div className='d-flex m-2'>
-                            <input className='' type="text"  id="groupname" style={{width:"70%",border:"2px solid black"}}  placeholder="add a group name " />
-                            <button   className='btn btn-outline-dark' onClick={()=>addgrp(document.getElementById("groupname").value)} style={{marginLeft:"10px",border:"2px solid black"}}>Add</button>
+                            <input className='' type="text" onChange={e=>setgroupname(e.target.value)}  value={groupname} id="groupname" style={{width:"70%",border:"2px solid black"}}  placeholder="add a group name " />
+                            <button   className='btn btn-outline-dark' onClick={addgrp} style={{marginLeft:"10px",border:"2px solid black"}}>Add</button>
                         </div>
                             )
                             :null}

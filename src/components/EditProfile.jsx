@@ -3,40 +3,95 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { editinfo } from '../redux/actions';
+import {useEffect } from 'react';
 
 const Editprofile = (props) => {
     const state = useSelector((state) => state.reducer);
+    const iduse=localStorage.getItem('iduser')
       // states
     const [show, setshow] = useState(true);
-      //    useDispatch
-    const dispatch=useDispatch()
+    const [user, setuser] = useState([]);
+    const [users, setusers] = useState([]);
+    const [username, setusername] = useState();
+    const [email, setemail] = useState();
+    const [phone, setphone] = useState();
+  
+
     // functions
-    const Edit=(id,username,email,phone)=>{
-            dispatch(editinfo(id,username,email,phone))
-          document.getElementById("alertmessage").style.visibility="visible"
-           
-    }
+ 
     const reset=()=>{
         setshow(false);
     }
+    const getusers=async()=>{
+       const response=await fetch ("/users",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }})
+
+    const data=await response.json();
+    setusers(data);
+
+      
+    }
+    const getuserconnected=async()=>{
+    const res=await fetch ("/user",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }});
+    const user=await res.json();
+     setuser(user);
+      }
+    useEffect(() => {
+     getusers();
+     getuserconnected();
+    }, []);
+    const update=async(e)=>{
+          e.preventDefault();
+         const response= await fetch("/updateuser",{
+            method:'PUT',
+            headers:{
+              'Content-Type':'application/json',
+              "x-xsrf-token":localStorage.getItem("TK"),
+            },
+            body:JSON.stringify({
+          iduse,username,email,phone
+        }),
+          })
+       const data=response.json();
+        setusers(data);
+            
+ document.getElementById("alertmessage").style.visibility="visible"
+    }
+
+    
     return (
         <div>
           {show===true?
             <div className=" shadow  "  style={{backgroundColor:"#BFBFBF"}}>
               <h4 className='text-center m-4' style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Edit Informations</h4>
-                {state.users.filter(e=>e.id===props.id).map(user=>{
+                {users.filter(e=>e._id===iduse).map(user=>{
                       return(  
                       <>
-                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Username </label><input  id="username"type="text" defaultValue={user.username}className='form-control text-center' style={{width:"60%",marginLeft:"10px"}}/></div>
-                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Email </label><input type="text" id="email" defaultValue={user.email} className='form-control text-center' style={{width:"60%",marginLeft:"40px"}}/></div>
-                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Phone  </label><input  type="text"  id="phone" defaultValue={user.phone} className='form-control text-center' style={{width:"60%",marginLeft:"34px"}}/></div>
+                      <form  onSubmit={(e)=>update(e)}>
+                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Username </label><input  id="username"type="text" defaultValue={user.username} onChange={(e)=>setusername(e.target.value)}className='form-control text-center' style={{width:"60%",marginLeft:"10px"}}/></div>
+                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Email </label><input type="text" id="email" defaultValue={user.email} onChange={(e)=>setemail(e.target.value)}  className='form-control text-center' style={{width:"60%",marginLeft:"40px"}}/></div>
+                        <div className='d-flex' style={{marginTop:"15px",marginLeft:"10px"}}><label style={{fontFamily: 'Lobster Two, cursive',color:"black"}}>Phone  </label><input  type="text"  id="phone" defaultValue={user.phone} onChange={(e)=>setphone(e.target.value)} className='form-control text-center' style={{width:"60%",marginLeft:"34px"}}/></div>
                         <div className="d-flex" style={{marginLeft:"75px",marginTop:"10px"}}>
-                          <button className="btn  m-2"  style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} onClick={()=>Edit(user.id,document.getElementById("username").value,document.getElementById("email").value,document.getElementById("phone").value)}>Save Changes</button>
+                          <button className="btn  m-2" type="submit"  style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}}>Save Changes</button>
                           <button className="btn  m-2"  style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}} onClick={()=>reset()}>Cancel</button>
                         </div>
                         <div class="alert alert-secondary text-success  "  id="alertmessage" style={{visibility:"hidden"}} role="alert">
                         Successfully  Saved <i class="fa-solid fa-circle-check"></i>
                         </div>
+                        </form>
                        </>
                                )
                   })

@@ -1,5 +1,5 @@
 const states = {
-  isAuthenticated:false,
+  isAuthenticated: false,
   users: [
     {
       id: 1,

@@ -12,18 +12,21 @@ import { useParams } from 'react-router-dom';
 import { Offline } from '../redux/actions';
 import { removeFriend } from '../redux/actions';
 import { Logout } from '../redux/actions';
+import {useEffect} from 'react';
 
 const Userprofile = () => {
-    const state = useSelector((state) => state.reducer);
-    // useParams
-    const {idu}=useParams();
-    const iduse=parseInt(idu);
+    const userr=JSON.parse(localStorage.getItem('user'));
+    const iduser=localStorage.getItem('iduser');
+       
     //  useHistory
      const history=useHistory()
     //  states
+    const [users, setusers] = useState([]);
+    const [user, setuser] = useState([userr]);
     const [show, setshow] = useState(false);
     const [editpic, seteditpic] = useState(false);
     const [editpassword, seteditpassword] = useState(false);
+    const user_id=localStorage.getItem('iduser')
     // useDispatch
     const dispatch=useDispatch()
     // functions
@@ -34,33 +37,73 @@ const Userprofile = () => {
     const Editpicture=()=>{
     seteditpic(!editpic)
                             }
-    const removefriendfromlist=(iduser,idfriend)=>{
-        dispatch(removeFriend(iduser,idfriend))
-    alert("Done...")
-    }
+    const removefriendfromlist=async(idfriend)=>{
+           const response=await fetch('/removefriend',{
+              method:'POST',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       },
+       body:JSON.stringify({
+          idfriend,iduser
+        }),
+           
+    })
+    const data=response.json();
+    setusers(data)
+           
+    };
+
+    
     const gotohome=()=>{
-    history.push(`/listusers/${iduse}`)
+    history.push(`/listusers`)
                         }
     const EditPassword=()=>{
     seteditpassword(!editpassword);
     setshow(false)
                            }
-    const SignOut=(em,pass)=>{
-        dispatch(Logout());
-    history.push('/');
-    dispatch(Offline(em,pass))
+    const SignOut=()=>{
+        
+localStorage.clear();
+history.push('/login')
+    
     }
+
+  
+    const getusers=async ()=>{
+          const res=await fetch ("/users",
+    {
+       method:'GET',
+       headers:{
+          'Content-Type':'application/json',
+          "x-xsrf-token":localStorage.getItem("TK"),
+
+       }})
+          
+    const listdata=await res.json();
+    console.log(listdata);
+    setusers(listdata);
+    }
+    
+        useEffect(() => {
+            
+           getusers();
+           console.log(user)
+}, []);
+   
+
     return (
         
         <div className='d-flex '>
                <div className="col-md-4   " style={{marginTop:"50px"}}>
                     {
-                        editpic&&<EditPicture id={iduse}/>
+                        editpic&&<EditPicture id={user_id}/>
                     }
                 </div>
             <div className=" col-md-4 " >
                 <div className=" card   m-5 " >
-                    {state.users.filter(user=>user.id===iduse).map(el=>{
+                    {user.map(el=>{
                               return(
                                 <>
                                   <h5 className='text-center'>My Account</h5>
@@ -76,14 +119,16 @@ const Userprofile = () => {
                                     <hr className="dropdown-divider" />
                                     <h6>Friends List</h6>
                                     <div>
-                                    {state.FriendsList.find(e=>e.friend1===iduse)? 
-                                    state.FriendsList.filter(e=>e.friend1===iduse).map(e=>{
-                                        return(
+                                   
+                                   
                                           <div className='row'>
-                                          {state.users.filter(el=>el.id===e.friend2).map(user=>{
-                                        return(
-                                            <>
-                                            <div className ='col-md-11 m-1 d-flex  shadow'  style={{border:"1px solid #BFBFBF"}} key={user.id}>
+                                          {el.friendsList.map(element=>{
+                                              return (
+                                                  <>
+                                                  {users.filter(ele=>ele._id===element.idfriend).map(user=>{
+                                                      return (
+                                                          <>
+                                                          <div className ='col-md-11 m-1 d-flex  shadow'  style={{border:"1px solid #BFBFBF"}} key={user.id}>
                                                 <div className="col-md-3 m-2">
                                                        <button className="btn btn-outline-dark  " style={{border:"none"}}> <img  alt ="" src={user.img}  className='avatar2'/>
                                                 </button>
@@ -92,45 +137,37 @@ const Userprofile = () => {
                                                     <h6  id={user.username}style={{fontSize:"15px",visibility:"visible"}}>{user.username}</h6>
                                                 </div>
                                                 <div className="col-md-3 m-2 mt-4">
-                                                     <TiDelete style={{fontSize:"25px",marginBottom:"15px",float:"right"}} onClick={()=>removefriendfromlist(iduse,user.id)}/>
+                                                     <TiDelete style={{fontSize:"25px",marginBottom:"15px",float:"right"}} onClick={()=>removefriendfromlist(user._id)}/>
                                                 </div> 
                                             </div>
-                                                   </> )
-                                                })}                  
+                                                          </>
+                                                      )
+                                                  })}
+                                                  </>
+                                              )
+                                          })}                  
                                             </div>
-                                                        ) 
-                                                    }):  
-                                          state.FriendsList.find(element=>element.friend2===iduse)
-                                                    ? 
-                                                     state.FriendsList.filter(friend=>friend.friend2===iduse).map(e=>{
-                                        return(
-                                        <div className='row'>
-                                          {state.users.filter(el=>el.id===e.friend1).map(user=>{
-                                        return(
-                                            <div className='col-md-11 m-1 d-flex  shadow' style={{border:"1px solid #BFBFBF"}}>
-                                                <div className="col-md-3 m-2 ">
-                                                    <button className="btn btn-outline-dark " style={{border:"none"}}> <img alt="" src={user.img} 
-                                                className='avatar2'/>
-                                                    </button>
-                                                </div>
-                                                <div className="col-md-5 mt-4 "> <h6 id={user.username}style={{fontSize:"15px",visibility:"visible"}}>{user.username}</h6>
-                                                </div>
-                                                <div className="col-md-3 m-2 mt-4">   <TiDelete style={{fontSize:"25px",marginBottom:"15px",float:"right"}} onClick={()=>removefriendfromlist(user.id,iduse)}/>
-                                                </div> 
-                                            </div>
-                                                    )
-                                                })}                  
+                                                        
+                                                    
                                         </div>
-                                                        ) 
-                                                    }):null}
-                                        </div>
+
+
                                             <hr className="dropdown-divider" />
                                             <div className="d-flex m-4">
                                                 <button className='btn btn-outline-dark fw-bold'  onClick={()=>Edit()} style={{marginLeft:"10px",fontSize:"10px",height:"40px"}}><AiFillEdit/>Edit Profile Info</button>
                                                 <button className='btn btn-outline-dark fw-bold'  onClick={()=>EditPassword()} style={{marginLeft:"10px",fontSize:"10px",height:"40px"}}><AiFillEdit/>Edit Password</button>
                                             </div>
+
+
+
+
+
+
+
+
+
                                            <hr className="dropdown-divider" />
-                                             {state.users.filter(user=>user.id===iduse).map(el=>{
+                                             {users.filter(user=>user._id===user_id).map(el=>{
                                                         return(
                                                         <div className="btn d-flex justify-content-center" style={{backgroundColor:"#FF64FF",fontFamily: 'Lobster Two, cursive'}}  onClick={()=>SignOut(el.email,el.password)} >SignOut
                                                         </div>)})}
@@ -143,16 +180,13 @@ const Userprofile = () => {
             </div>
                 <div className="col-md-4" style={{marginTop:"50px"}}>
                     {
-                        show===true ?<EditProfile id={iduse}/>:editpassword===true?<Editpass id={iduse}/>:null
+                        show===true ?<EditProfile id={user_id}/>:editpassword===true?<Editpass id={user_id}/>:null
                     }
                 </div>
                 <div>
                  <button className='btn btn-dark p-1 ' style={{width:"50px",height:"45px"}}> <BsXCircle onClick={()=>gotohome()} style={{fontSize:"30px"}}/></button> 
                </div>
         </div>
-
-
-    
     );
 }
 
